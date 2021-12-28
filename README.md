@@ -27,4 +27,4 @@ While in the same directory, Install
 First cd into the frontend folder directory
 Then we initialize a react app inside there using 
   $ npx create-react-app ./ 
-  x
+  

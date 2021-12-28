@@ -1,4 +1,5 @@
 # OMM_Project
+# After cloning the repository to your local development environment, run npm install in the /server directory to install all dependencies specified in package.json.
 #Backend Server setup Instructions
 First cd into the server folder directory and create a file called index.js
 While in the same directory, Install 

@@ -17,6 +17,11 @@ While in the same directory, Install
   $ import mongoose from "mongoose";
   $ import cors from "cors";
   
+# under package.json, below the line containing "main": "index.js", , we add the following
+  "type": "module",
+  Delete the test script below "scripts" : {, and replace it with "start": "nodemon index.js" --> to use express directly from import by using the latest node.js.
+  
+  
 
 # Frontend react setup Instructions
 First cd into the frontend folder directory

@@ -4,6 +4,7 @@ import './mememuc.css';
 var MEME_API_BASE_URL = 'http://localhost:5555';
 
 interface Meme {
+  _id: number;
   name: string;
   link: string;
 }
@@ -27,16 +28,22 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
 
   state = {
     selectedBaseImage: undefined,
-    memes: [
-      {
-        name: 'doge',
-        link: `${MEME_API_BASE_URL}/memes/doge`,
-      },
-    ],
+    memes: [],
     caption: {
       topText: '', topX: 0, topY: 0,
       bottomText: '', bottomX: 0, bottomY: 0,
     }
+  }
+
+  componentDidMount() {
+    fetch(`/memes`)
+      .then(response => response.json())
+      .then(memes => {
+        this.setState({
+          memes: memes
+        })
+      })
+      .catch(error => console.log(error))
   }
 
   selectBaseImage = (meme: Meme) => {
@@ -57,7 +64,7 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
     if(!meme){
       return null
     }
-    const url = new URL(meme!.link);
+    const url = new URL(`${MEME_API_BASE_URL}/memes/${meme['name']}`);
     console.log(url);
     const params: {[index: string]: string} = {
       text: this.state.caption.topText,
@@ -103,9 +110,9 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
           this.state.memes.map((meme) => {
 
             return (
-                <li key={meme.link} onClick={() => {this.selectBaseImage(meme)}}>
-                  <img src={meme.link} alt="lists"/>
-                </li>
+              <li key={`${MEME_API_BASE_URL}/memes/${meme['name']}`} onClick={() => {this.selectBaseImage(meme)}}>
+                <img src={`${MEME_API_BASE_URL}/memes/${meme['name']}`} alt="lists"/>
+              </li>
             )
           })
         }

@@ -17,12 +17,11 @@ var app = express();
 app.use(bodyParser.json({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const CONNECTION_URL = "";
+// set the mongoDB connection
+const CONNECTION_URL = "mongodb+srv://superUser:root-superUser@clusteromm.cg4vw.mongodb.net/OMM_Project?retryWrites=true&w=majority";
 mongoose.connect(CONNECTION_URL, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
-        app.listen(PORT, () => {
-            console.log("Server is running");
-        })
+        console.log("DataBase is running");
     })
     .catch((error) => console.log(error.message));
 // set another default value for mongoose
@@ -37,15 +36,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-// instantiate a DataStorage instance for our images data
-var DataStorage = require('./model/DataStorage')
-const dataStorage = new DataStorage();
-// a way to make that one instance accessible from every middleware: attaching it to the request object
-app.use((req,res,next)=> {
-  req.dataStorage = dataStorage;
-  next();
-})
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);

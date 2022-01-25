@@ -50,19 +50,10 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
   }
 
   selectBaseImage = (meme: Meme) => {
-    // TODO: update the component's state, to apply the user's base image selection
     this.setState({selectedBaseImage: meme})
   }
 
   memeURL = () => {
-    // The Meme API is able to render captions of your choice onto a base image.
-    // You simply have to pass your captions as GET parameters, e.g.:
-    //http://mememuc.medien.ifi.lmu.de:3000/memes/doge?text=Such+beautiful+code&x=0&y=0&text2=Wow&x2=0&y2=0
-
-    // TODO This method should return an URL for the Meme api, parameterized with the captions that are currently entered in the text fields
-    // - access the Caption object, saved in the component's state
-    // - build an URL and return it
-
     var meme: Meme = this.state.selectedBaseImage!
     if(!meme){
       return null
@@ -209,6 +200,53 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
             <input name="text3" value={this.state.caption.text3} onChange={this.captionChanged} type="text" placeholder="Text 3"/>
             <input name="text4" value={this.state.caption.text4} onChange={this.captionChanged} type="text" placeholder="Text 4"/>
             <input name="text5" value={this.state.caption.text5} onChange={this.captionChanged} type="text" placeholder="Text 5"/>
+          </div>
+          <div className="styles">
+            <input name="bold3" value={this.state.caption.bold3} onChange={this.captionBoldChanged} type="checkbox"/>
+            <label>Bold</label>
+            <input name="bold4" value={this.state.caption.bold4} onChange={this.captionBoldChanged} type="checkbox"/>
+            <label>Bold</label>
+            <input name="bold5" value={this.state.caption.bold5} onChange={this.captionBoldChanged} type="checkbox"/>
+            <label>Bold</label>
+          </div>
+          <div className="sizes">
+            <input name="size3" value={this.state.caption.size3} onChange={this.captionChanged} type="number" placeholder="Size 3"/>
+            <input name="size4" value={this.state.caption.size4} onChange={this.captionChanged} type="number" placeholder="Size 4"/>
+            <input name="size5" value={this.state.caption.size5} onChange={this.captionChanged} type="number" placeholder="Size 5"/>
+          </div>
+          <div className="fonts">
+            <select name="font3" onChange={this.captionChanged}>
+              <option value="Menlo">Menlo</option>
+              <option value="Arial">Arial</option>
+              <option value="Verdana">Verdana</option>
+              <option value="Times New Roman">Times New Roman</option>
+              <option value="Courier New">Courier New</option>
+              <option value="serif">serif</option>
+              <option value="sans-serif">sans-serif</option>
+            </select>
+            <select name="font4" onChange={this.captionChanged}>
+              <option value="Menlo">Menlo</option>
+              <option value="Arial">Arial</option>
+              <option value="Verdana">Verdana</option>
+              <option value="Times New Roman">Times New Roman</option>
+              <option value="Courier New">Courier New</option>
+              <option value="serif">serif</option>
+              <option value="sans-serif">sans-serif</option>
+            </select>
+            <select name="font5" onChange={this.captionChanged}>
+              <option value="Menlo">Menlo</option>
+              <option value="Arial">Arial</option>
+              <option value="Verdana">Verdana</option>
+              <option value="Times New Roman">Times New Roman</option>
+              <option value="Courier New">Courier New</option>
+              <option value="serif">serif</option>
+              <option value="sans-serif">sans-serif</option>
+            </select>
+          </div>
+          <div className="colors">
+            <input name="color3" value={this.state.caption.color3} onChange={this.captionChanged} type="color"/>
+            <input name="color4" value={this.state.caption.color4} onChange={this.captionChanged} type="color"/>
+            <input name="color5" value={this.state.caption.color5} onChange={this.captionChanged} type="color"/>
           </div>
           <div className="positions">
             <input name="x3" value={this.state.caption.x3} onChange={this.captionChanged} type="number"/>

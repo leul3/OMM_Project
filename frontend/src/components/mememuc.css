@@ -34,16 +34,16 @@
     max-width: 100%;
 }
 
-.params .texts, .params .positions, .params .styles, .params .sizes, .params .fonts, .params .colors, .extraParams .texts, .extraParams .positions {
+.params .texts, .params .positions, .params .styles, .params .sizes, .params .fonts, .params .colors {
     display: flex;
     flex-direction: row;
 }
 
-.params .texts input, .params .styles input, .params .sizes input, .params .fonts select, .params .colors input, .extraParams .texts input {
+.params .texts input, .params .styles input, .params .sizes input, .params .fonts select, .params .colors input {
     width: 50%;
 }
 
-.params .positions input, .extraParams .positions input {
+.params .positions input {
     width: 25%;
 }
 

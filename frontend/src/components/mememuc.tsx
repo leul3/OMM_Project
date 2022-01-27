@@ -1,5 +1,7 @@
 import React from 'react';
 import './mememuc.css';
+import { Link } from "react-router-dom";
+import Meme from "./Meme";
 
 var MEME_API_BASE_URL = 'http://localhost:5555';
 
@@ -18,10 +20,16 @@ interface Caption {
   bottomY: number
 }
 
+interface Save {
+  saved: Boolean
+  name: String
+}
+
 interface OmmMemeMUCState {
   selectedBaseImage?: Meme
   memes: Meme[]
   caption: Caption
+  save: Save
 }
   
 export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
@@ -35,11 +43,15 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
       text3: '', bold3: '', size3: 100, font3: 'Menlo', color3: '%23000000', x3: 0, y3: 0,
       text4: '', bold4: '', size4: 100, font4: 'Menlo', color4: '%23000000', x4: 0, y4: 0,
       text5: '', bold5: '', size5: 100, font5: 'Menlo', color5: '%23000000', x5: 0, y5: 0,
+    },
+    save: {
+      saved: false,
+      name: ''
     }
   }
 
   componentDidMount() {
-    fetch(`/memes`)
+    fetch(`/images`)
       .then(response => response.json())
       .then(memes => {
         this.setState({
@@ -51,6 +63,10 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
 
   selectBaseImage = (meme: Meme) => {
     this.setState({selectedBaseImage: meme})
+    this.setState({save: {
+      saved: false,
+      name: ''
+    }})
   }
 
   memeURL = () => {
@@ -58,7 +74,7 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
     if(!meme){
       return null
     }
-    const url = new URL(`${MEME_API_BASE_URL}/memes/${meme['name']}`);
+    const url = new URL(`${MEME_API_BASE_URL}/images/${meme['name']}`);
     const params: {[index: string]: string} = {
       text: this.state.caption.topText,
       bold: this.state.caption.topBold,
@@ -103,7 +119,6 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
     for (let key in params){
       url.searchParams.append(key, params[key])
     }
-    console.log(url);
     return url
   }
 
@@ -127,95 +142,86 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
     })
   }
 
+  saveMeme = async () => {
+    await fetch('/memes')
+      .then(response => response.text())
+      .then(data => JSON.parse(data))
+      .then(obj => Object.keys(obj).length)
+      .then(length => fetch(`/saveMeme/memeUser1_n${length}`)
+        .then(response => this.setState({ save: {
+          saved: true,
+          name: `memeUser1_n${length}`
+        } }))
+        .catch(error => console.log(error))
+        )
+  }
+
+  storeMemeLocally = () => {
+
+  }
+
   render() {
     let results = (<h3>No Meme Selected</h3>)
-    let url = this.memeURL()
+    let url = this.memeURL();
+    if (this.state.save.saved) {
+      url = new URL(`${MEME_API_BASE_URL}/memes/${this.state.save.name}`);
+    }
     if (url) {
       results = (<img src={url.toString()} alt="selected"/>)
     }
 
-    return (<div className="mememuc">
-      <ul className="meme-list">
-        {
-          this.state.memes.map((meme) => {
+    if (this.state.save.saved) {
+      console.log('saved');
+      return (
+        <div className="mememuc">
+          <ul className="meme-list"></ul>
+          <div className="results">
+            {results}
+          </div>
+          <div className="params">
+            <div className='save'>
+              {/*<Link to={`/meme/${this.state.save.name}`}><button>View meme</button></Link>*/}
+              <button onClick={this.storeMemeLocally}>Store locally</button>
+            </div>
+          </div>
+          
+        </div>
+      );
+    }
+    else {
+      return (<div className="mememuc">
+        <ul className="meme-list">
+          {
+            this.state.memes.map((meme) => {
 
-            return (
-              <li key={`${MEME_API_BASE_URL}/memes/${meme['name']}`} onClick={() => {this.selectBaseImage(meme)}}>
-                <img src={`${MEME_API_BASE_URL}/memes/${meme['name']}`} alt="lists"/>
-              </li>
-            )
-          })
-        }
-      </ul>
-      <div className="results">
-        {results}
-      </div>
-      <div className="params">
-        <div className="texts">
-          <input name="topText" value={this.state.caption.topText} onChange={this.captionChanged} type="text" placeholder="Upper Text"/>
-          <input name="bottomText" value={this.state.caption.bottomText} onChange={this.captionChanged} type="text" placeholder="Lower Text"/>
+              return (
+                <li key={`${MEME_API_BASE_URL}/images/${meme['name']}`} onClick={() => {this.selectBaseImage(meme)}}>
+                  <img src={`${MEME_API_BASE_URL}/images/${meme['name']}`} alt="lists"/>
+                </li>
+              )
+            })
+          }
+        </ul>
+        <div className="results">
+          {results}
         </div>
-        <div className="styles">
-          <input name="topBold" value={this.state.caption.topBold} onChange={this.captionBoldChanged} type="checkbox"/>
-          <label>Bold</label>
-          <input name="bottomBold" value={this.state.caption.topBold} onChange={this.captionBoldChanged} type="checkbox"/>
-          <label>Bold</label>
-        </div>
-        <div className="sizes">
-          <input name="topSize" value={this.state.caption.topSize} onChange={this.captionChanged} type="number" placeholder="Upper Size"/>
-          <input name="bottomSize" value={this.state.caption.bottomSize} onChange={this.captionChanged} type="number" placeholder="Lower Size"/>
-        </div>
-        <div className="fonts">
-          <select name="topFont" onChange={this.captionChanged}>
-            <option value="Menlo">Menlo</option>
-            <option value="Arial">Arial</option>
-            <option value="Verdana">Verdana</option>
-            <option value="Times New Roman">Times New Roman</option>
-            <option value="Courier New">Courier New</option>
-            <option value="serif">serif</option>
-            <option value="sans-serif">sans-serif</option>
-          </select>
-          <select name="bottomFont" onChange={this.captionChanged}>
-            <option value="Menlo">Menlo</option>
-            <option value="Arial">Arial</option>
-            <option value="Verdana">Verdana</option>
-            <option value="Times New Roman">Times New Roman</option>
-            <option value="Courier New">Courier New</option>
-            <option value="serif">serif</option>
-            <option value="sans-serif">sans-serif</option>
-          </select>
-        </div>
-        <div className="colors">
-          <input name="topColor" value={this.state.caption.topColor} onChange={this.captionChanged} type="color"/>
-          <input name="bottomColor" value={this.state.caption.bottomColor} onChange={this.captionChanged} type="color"/>
-        </div>
-        <div className="positions">
-          <input name="topX" value={this.state.caption.topX} onChange={this.captionChanged} type="number" placeholder="Position X"/>
-          <input name="topY" value={this.state.caption.topY} onChange={this.captionChanged} type="number" placeholder="Position Y"/>
-          <input name="bottomX" value={this.state.caption.bottomX} onChange={this.captionChanged} type="number" placeholder="Position X"/>
-          <input name="bottomY" value={this.state.caption.bottomY} onChange={this.captionChanged} type="number" placeholder="Position Y"/>
-        </div>
-        <div className="extraParams">
+        <div className="params">
           <div className="texts">
-            <input name="text3" value={this.state.caption.text3} onChange={this.captionChanged} type="text" placeholder="Text 3"/>
-            <input name="text4" value={this.state.caption.text4} onChange={this.captionChanged} type="text" placeholder="Text 4"/>
-            <input name="text5" value={this.state.caption.text5} onChange={this.captionChanged} type="text" placeholder="Text 5"/>
+            <input name="topText" value={this.state.caption.topText} onChange={this.captionChanged} type="text" placeholder="Upper Text"/>
+            <input name="bottomText" value={this.state.caption.bottomText} onChange={this.captionChanged} type="text" placeholder="Lower Text"/>
           </div>
           <div className="styles">
-            <input name="bold3" value={this.state.caption.bold3} onChange={this.captionBoldChanged} type="checkbox"/>
+            <input name="topBold" value={this.state.caption.topBold} onChange={this.captionBoldChanged} type="checkbox"/>
             <label>Bold</label>
-            <input name="bold4" value={this.state.caption.bold4} onChange={this.captionBoldChanged} type="checkbox"/>
-            <label>Bold</label>
-            <input name="bold5" value={this.state.caption.bold5} onChange={this.captionBoldChanged} type="checkbox"/>
+            <input name="bottomBold" value={this.state.caption.topBold} onChange={this.captionBoldChanged} type="checkbox"/>
             <label>Bold</label>
           </div>
           <div className="sizes">
-            <input name="size3" value={this.state.caption.size3} onChange={this.captionChanged} type="number" placeholder="Size 3"/>
-            <input name="size4" value={this.state.caption.size4} onChange={this.captionChanged} type="number" placeholder="Size 4"/>
-            <input name="size5" value={this.state.caption.size5} onChange={this.captionChanged} type="number" placeholder="Size 5"/>
+            <input name="topSize" value={this.state.caption.topSize} onChange={this.captionChanged} type="number" placeholder="Upper Size"/>
+            <input name="bottomSize" value={this.state.caption.bottomSize} onChange={this.captionChanged} type="number" placeholder="Lower Size"/>
           </div>
           <div className="fonts">
-            <select name="font3" onChange={this.captionChanged}>
+            <select name="topFont" onChange={this.captionChanged}>
               <option value="Menlo">Menlo</option>
               <option value="Arial">Arial</option>
               <option value="Verdana">Verdana</option>
@@ -224,16 +230,7 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
               <option value="serif">serif</option>
               <option value="sans-serif">sans-serif</option>
             </select>
-            <select name="font4" onChange={this.captionChanged}>
-              <option value="Menlo">Menlo</option>
-              <option value="Arial">Arial</option>
-              <option value="Verdana">Verdana</option>
-              <option value="Times New Roman">Times New Roman</option>
-              <option value="Courier New">Courier New</option>
-              <option value="serif">serif</option>
-              <option value="sans-serif">sans-serif</option>
-            </select>
-            <select name="font5" onChange={this.captionChanged}>
+            <select name="bottomFont" onChange={this.captionChanged}>
               <option value="Menlo">Menlo</option>
               <option value="Arial">Arial</option>
               <option value="Verdana">Verdana</option>
@@ -244,20 +241,84 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
             </select>
           </div>
           <div className="colors">
-            <input name="color3" value={this.state.caption.color3} onChange={this.captionChanged} type="color"/>
-            <input name="color4" value={this.state.caption.color4} onChange={this.captionChanged} type="color"/>
-            <input name="color5" value={this.state.caption.color5} onChange={this.captionChanged} type="color"/>
+            <input name="topColor" value={this.state.caption.topColor} onChange={this.captionChanged} type="color"/>
+            <input name="bottomColor" value={this.state.caption.bottomColor} onChange={this.captionChanged} type="color"/>
           </div>
           <div className="positions">
-            <input name="x3" value={this.state.caption.x3} onChange={this.captionChanged} type="number"/>
-            <input name="y3" value={this.state.caption.y3} onChange={this.captionChanged} type="number"/>
-            <input name="x4" value={this.state.caption.x4} onChange={this.captionChanged} type="number"/>
-            <input name="y4" value={this.state.caption.y4} onChange={this.captionChanged} type="number"/>
-            <input name="x5" value={this.state.caption.x5} onChange={this.captionChanged} type="number"/>
-            <input name="y5" value={this.state.caption.y5} onChange={this.captionChanged} type="number"/>
+            <input name="topX" value={this.state.caption.topX} onChange={this.captionChanged} type="number" placeholder="Position X"/>
+            <input name="topY" value={this.state.caption.topY} onChange={this.captionChanged} type="number" placeholder="Position Y"/>
+            <input name="bottomX" value={this.state.caption.bottomX} onChange={this.captionChanged} type="number" placeholder="Position X"/>
+            <input name="bottomY" value={this.state.caption.bottomY} onChange={this.captionChanged} type="number" placeholder="Position Y"/>
+          </div>
+          <div className="extraParams">
+            <div className="texts">
+              <input name="text3" value={this.state.caption.text3} onChange={this.captionChanged} type="text" placeholder="Text 3"/>
+              <input name="text4" value={this.state.caption.text4} onChange={this.captionChanged} type="text" placeholder="Text 4"/>
+              <input name="text5" value={this.state.caption.text5} onChange={this.captionChanged} type="text" placeholder="Text 5"/>
+            </div>
+            <div className="styles">
+              <input name="bold3" value={this.state.caption.bold3} onChange={this.captionBoldChanged} type="checkbox"/>
+              <label>Bold</label>
+              <input name="bold4" value={this.state.caption.bold4} onChange={this.captionBoldChanged} type="checkbox"/>
+              <label>Bold</label>
+              <input name="bold5" value={this.state.caption.bold5} onChange={this.captionBoldChanged} type="checkbox"/>
+              <label>Bold</label>
+            </div>
+            <div className="sizes">
+              <input name="size3" value={this.state.caption.size3} onChange={this.captionChanged} type="number" placeholder="Size 3"/>
+              <input name="size4" value={this.state.caption.size4} onChange={this.captionChanged} type="number" placeholder="Size 4"/>
+              <input name="size5" value={this.state.caption.size5} onChange={this.captionChanged} type="number" placeholder="Size 5"/>
+            </div>
+            <div className="fonts">
+              <select name="font3" onChange={this.captionChanged}>
+                <option value="Menlo">Menlo</option>
+                <option value="Arial">Arial</option>
+                <option value="Verdana">Verdana</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier New">Courier New</option>
+                <option value="serif">serif</option>
+                <option value="sans-serif">sans-serif</option>
+              </select>
+              <select name="font4" onChange={this.captionChanged}>
+                <option value="Menlo">Menlo</option>
+                <option value="Arial">Arial</option>
+                <option value="Verdana">Verdana</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier New">Courier New</option>
+                <option value="serif">serif</option>
+                <option value="sans-serif">sans-serif</option>
+              </select>
+              <select name="font5" onChange={this.captionChanged}>
+                <option value="Menlo">Menlo</option>
+                <option value="Arial">Arial</option>
+                <option value="Verdana">Verdana</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier New">Courier New</option>
+                <option value="serif">serif</option>
+                <option value="sans-serif">sans-serif</option>
+              </select>
+            </div>
+            <div className="colors">
+              <input name="color3" value={this.state.caption.color3} onChange={this.captionChanged} type="color"/>
+              <input name="color4" value={this.state.caption.color4} onChange={this.captionChanged} type="color"/>
+              <input name="color5" value={this.state.caption.color5} onChange={this.captionChanged} type="color"/>
+            </div>
+            <div className="positions">
+              <input name="x3" value={this.state.caption.x3} onChange={this.captionChanged} type="number"/>
+              <input name="y3" value={this.state.caption.y3} onChange={this.captionChanged} type="number"/>
+              <input name="x4" value={this.state.caption.x4} onChange={this.captionChanged} type="number"/>
+              <input name="y4" value={this.state.caption.y4} onChange={this.captionChanged} type="number"/>
+              <input name="x5" value={this.state.caption.x5} onChange={this.captionChanged} type="number"/>
+              <input name="y5" value={this.state.caption.y5} onChange={this.captionChanged} type="number"/>
+            </div>
+          </div>
+          <div className='save'>
+            <button onClick={this.saveMeme}>Save on the server</button>
+            <button onClick={this.storeMemeLocally}>Store locally</button>
           </div>
         </div>
-      </div>
-    </div>);
+      </div>);
+    }
+    
   }
 };

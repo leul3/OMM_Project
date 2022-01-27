@@ -1,16 +1,13 @@
 import React from 'react';
 import './App.css';
-import OmmMememuc from './components/mememuc'
+import { Link } from "react-router-dom";
 
 const App: React.FC = () => {
-  return (
+  return(
     <div className="App">
-      <header>
-        <h1>MemeMUC</h1>
-      </header>
-      <OmmMememuc />
+      <Link to="/mememuc">Go to the meme creator</Link>
     </div>
-  );
+  )
 }
 
 export default App;

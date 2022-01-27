@@ -10,7 +10,10 @@ var cors = require('cors');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var imagesRouter = require('./routes/images');
 var memesRouter = require('./routes/memes');
+var saveMemeRouter = require('./routes/saveMeme');
+var deleteMemeRouter = require('./routes/deleteMeme');
 
 var app = express();
 
@@ -39,7 +42,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/images', imagesRouter);
 app.use('/memes', memesRouter);
+app.use('/saveMeme', saveMemeRouter);
+app.use('/deleteMeme', deleteMemeRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

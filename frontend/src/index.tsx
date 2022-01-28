@@ -8,7 +8,7 @@ import {
 import './index.css';
 import App from './App';
 import OmmMememuc from './components/mememuc'
-import Meme from "./components/Meme";
+import Memes from "./components/memes";
 
 ReactDOM.render(
     <BrowserRouter>
@@ -19,9 +19,7 @@ ReactDOM.render(
             <Routes>
                 <Route path="/" element={<App />} />
                 <Route path="mememuc" element={<OmmMememuc />} />
-                <Route path="meme" element={<Meme />}>
-                    <Route path=":memeId" element={<Meme />} />
-                </Route>
+                <Route path="memes" element={<Memes />} />
             </Routes>
         </div>
     </BrowserRouter>, 

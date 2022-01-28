@@ -1,7 +1,6 @@
 import React from 'react';
 import './mememuc.css';
 import { Link } from "react-router-dom";
-import Meme from "./Meme";
 
 var MEME_API_BASE_URL = 'http://localhost:5555';
 
@@ -13,11 +12,44 @@ interface Meme {
 
 interface Caption {
   topText: string
+  topBold: string
+  topSize: number
+  topFont: string
+  topColor: string
   topX: number
   topY: number
+
   bottomText: string
+  bottomBold: string
+  bottomSize: number
+  bottomFont: string
+  bottomColor: string
   bottomX: number
   bottomY: number
+
+  text3: string
+  bold3: string
+  size3: number
+  font3: string
+  color3: string
+  x3: number
+  y3: number
+
+  text4: string
+  bold4: string
+  size4: number
+  font4: string
+  color4: string
+  x4: number
+  y4: number
+
+  text5: string
+  bold5: string
+  size5: number
+  font5: string
+  color5: string
+  x5: number
+  y5: number
 }
 
 interface Save {
@@ -50,6 +82,7 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
     }
   }
 
+  // initialize this.state.memes
   componentDidMount() {
     fetch(`/images`)
       .then(response => response.json())
@@ -59,6 +92,19 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
         })
       })
       .catch(error => console.log(error))
+  }
+
+  // reset this.state.caption
+  resetCaption() {
+    this.setState({
+      caption: {
+        topText: '', topBold: '', topSize: 100, topFont: 'Menlo', topColor: '%23000000', topX: 0, topY: 0,
+        bottomText: '', bottomBold: '', bottomSize: 100, bottomFont: 'Menlo', bottomColor: '%23000000', bottomX: 0, bottomY: 0,
+        text3: '', bold3: '', size3: 100, font3: 'Menlo', color3: '%23000000', x3: 0, y3: 0,
+        text4: '', bold4: '', size4: 100, font4: 'Menlo', color4: '%23000000', x4: 0, y4: 0,
+        text5: '', bold5: '', size5: 100, font5: 'Menlo', color5: '%23000000', x5: 0, y5: 0,
+      }
+    })
   }
 
   selectBaseImage = (meme: Meme) => {
@@ -147,17 +193,37 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
       .then(response => response.text())
       .then(data => JSON.parse(data))
       .then(obj => Object.keys(obj).length)
-      .then(length => fetch(`/saveMeme/memeUser1_n${length}`)
-        .then(response => this.setState({ save: {
-          saved: true,
-          name: `memeUser1_n${length}`
-        } }))
+      .then(length => fetch(`/memes/memeUser1_n${length}/save`)
+        .then(response => {
+          this.setState({selectedBaseImage: undefined})
+          this.resetCaption()
+          this.setState({ save: {
+            saved: true,
+            name: `memeUser1_n${length}`
+          }})
+        })
         .catch(error => console.log(error))
         )
   }
 
   storeMemeLocally = () => {
-
+    let fetchUrl = ``;
+    if (this.state.save.saved) {
+      fetchUrl = `/memes/${this.state.save.name}`;
+    }
+    else {
+      fetchUrl = `${this.memeURL()!.pathname}?${this.memeURL()!.searchParams}`;
+    }
+    fetch(fetchUrl)
+			.then(response => {
+				response.blob().then(blob => {
+					let url = window.URL.createObjectURL(blob);
+					let a = document.createElement('a');
+					a.href = url;
+					a.download = 'meme.jpeg';
+					a.click();
+				});
+		});
   }
 
   render() {
@@ -171,7 +237,6 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
     }
 
     if (this.state.save.saved) {
-      console.log('saved');
       return (
         <div className="mememuc">
           <ul className="meme-list"></ul>
@@ -180,8 +245,11 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
           </div>
           <div className="params">
             <div className='save'>
-              {/*<Link to={`/meme/${this.state.save.name}`}><button>View meme</button></Link>*/}
               <button onClick={this.storeMemeLocally}>Store locally</button>
+              <button onClick={() => this.setState({ save: {
+                saved: false,
+                name: ``
+              }})}>Go back to the creator</button>
             </div>
           </div>
           
@@ -315,6 +383,7 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
           <div className='save'>
             <button onClick={this.saveMeme}>Save on the server</button>
             <button onClick={this.storeMemeLocally}>Store locally</button>
+            <Link to={"/"}><button>Go back to the main menu</button></Link>
           </div>
         </div>
       </div>);

@@ -67,7 +67,22 @@ export default class Memes extends React.Component<{}, MemesState> {
     let results = (<h3>No Meme Selected</h3>)
     let url = this.memeURL();
     if (url) {
-      results = (<img src={url.toString()} alt="selected"/>)
+      results = (
+        <div>
+          <h3>{this.state.selectedBaseImage!['name']}</h3>
+          <img src={url.toString()} alt="selected" title={this.state.selectedBaseImage!['name']}/>
+        </div>
+      )
+    }
+
+    let buttons = (<Link to={"/"}><button>Go back to the main menu</button></Link>)
+    if (this.state.selectedBaseImage != undefined) {
+      buttons = (
+        <div>
+          <button onClick={this.storeMemeLocally}>Store locally</button>
+          <Link to={"/"}><button>Go back to the main menu</button></Link>
+        </div>
+      )
     }
 
     return (<div className="mememuc">
@@ -87,8 +102,7 @@ export default class Memes extends React.Component<{}, MemesState> {
         {results}
       </div>
       <div className="params">
-          <button onClick={this.storeMemeLocally}>Store locally</button>
-          <Link to={"/"}><button>Go back to the main menu</button></Link>
+          {buttons}
       </div>
     </div>);
   }

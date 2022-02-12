@@ -4,7 +4,6 @@ var path = require('path');
 var fs = require('fs');
 var canvas = require('canvas');
 var Image = require("../models/image.js");
-var Meme = require("../models/meme.js");
 
 // ... mounts to /images/
 router.get('/', function(req, res, next) {

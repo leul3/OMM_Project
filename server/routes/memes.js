@@ -15,6 +15,22 @@ router.get('/', function(req, res, next) {
     })
 });
 
+// save a meme
+router.post('/', async function(req, res, next) {
+    let memeName = req.body.name;
+    await fs.readFile(path.join(__dirname, '../public/memes/memeUser1.jpeg'), (err, data) => {
+        if (err) throw err;
+        fs.writeFile(path.join(__dirname, `../public/memes/${memeName}.jpeg`), data, async (err) => {
+            if (err) throw err;
+            await Meme.insertMany({name: memeName, link: `../public/memes/${memeName}.jpeg`, user: req.body.user});
+            res.send(memeName);
+        });
+    });
+    fs.unlink(path.join(__dirname, '../public/memes/memeUser1.jpeg'), (err) => {
+        if (err) throw err;
+    });
+});
+
   
 // ... mounts to /memes/:memeName
 router.get('/:memeName', function(req, res, next) {
@@ -33,31 +49,13 @@ router.get('/:memeName', function(req, res, next) {
 });
 
   
-// ... mounts to /memes/:memeName/save
-router.get('/:memeName/save', function(req, res, next) {
-    let memeName = req.params.memeName;
-    fs.readFile(path.join(__dirname, '../public/memes/memeUser1.jpeg'), async (err, data) => {
-        if (err) throw err;
-        fs.writeFile(path.join(__dirname, `../public/memes/${memeName}.jpeg`), data, (err) => {
-            if (err) throw err;
-            Meme.insertMany({name: memeName, link: `../public/memes/${memeName}.jpeg`, user: 'User1'});
-
-        });
-    });
-    fs.unlink(path.join(__dirname, '../public/memes/memeUser1.jpeg'), async (err) => {
-        if (err) throw err;
-    });
-    res.send(memeName);
-});
-
-  
 // ... mounts to /memes/:memeName/delete
 router.get('/:memeName/delete', function(req, res, next) {
     let memeName = req.params.memeName;
     Meme.remove({name: memeName}, (err) => {
         if (err) throw err;
         else {
-            fs.unlink(path.join(__dirname, `../public/memes/${memeName}.jpeg`), async (err) => {
+            fs.unlink(path.join(__dirname, `../public/memes/${memeName}.jpeg`), (err) => {
                 if (err) throw err;
             });
             res.send(memeName);

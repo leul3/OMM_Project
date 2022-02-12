@@ -195,7 +195,16 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
       .then(response => response.text())
       .then(data => JSON.parse(data))
       .then(obj => Object.keys(obj).length)
-      .then(length => fetch(`/memes/memeUser1_n${length}/save`)
+      .then(length => fetch(`/memes/`, {
+        method: "POST",
+        body: JSON.stringify({
+          name: `memeUser1_n${length}`,
+          user: 'User1'
+        }),
+        headers: {
+          "Content-type": "application/json; charset=UTF-8"
+        }
+      })
         .then(response => {
           this.setState({selectedBaseImage: undefined})
           this.resetCaption()
@@ -261,6 +270,17 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
     }
     if (url) {
       results = (<img src={url.toString()} alt="selected"/>)
+    }
+
+    let buttons = (<Link to={"/"}><button>Go back to the main menu</button></Link>)
+    if (this.state.selectedBaseImage != undefined) {
+      buttons = (
+        <div>
+          <button onClick={this.saveMeme}>Save on the server</button>
+          <button onClick={this.storeMemeLocally}>Store locally</button>
+          <Link to={"/"}><button>Go back to the main menu</button></Link>
+        </div>
+      )
     }
 
     if (this.state.save.saved) {
@@ -412,9 +432,7 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
               <button onClick={this.fileUploadHandler}>Upload</button>
           </div>
           <div className='save'>
-            <button onClick={this.saveMeme}>Save on the server</button>
-            <button onClick={this.storeMemeLocally}>Store locally</button>
-            <Link to={"/"}><button>Go back to the main menu</button></Link>
+            {buttons}
           </div>
         </div>
       </div>);

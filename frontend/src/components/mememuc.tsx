@@ -59,6 +59,7 @@ interface Save {
 
 interface OmmMemeMUCState {
   selectedBaseImage?: Meme
+  selectedUploadFile: Blob
   memes: Meme[]
   caption: Caption
   save: Save
@@ -68,6 +69,7 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
 
   state = {
     selectedBaseImage: undefined,
+    selectedUploadFile: new Blob(),
     memes: [],
     caption: {
       topText: '', topBold: '', topSize: 100, topFont: 'Menlo', topColor: '%23000000', topX: 0, topY: 0,
@@ -226,6 +228,31 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
 		});
   }
 
+  fileSelectHandler = (e: any) => {
+      this.setState({
+        selectedUploadFile: e.target.files[0]
+      });
+      console.log(e.target.files[0]);
+      console.log(this.state.selectedUploadFile);
+  }
+  fileUploadHandler= async () => {
+    var formData = new FormData();
+    formData.append('name', 'uploadedTemplate');
+    formData.append('image', this.state.selectedUploadFile);
+    console.log(formData);
+    fetch('/upload', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(result => {
+      console.log('Success:', result);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  }
+
   render() {
     let results = (<h3>No Meme Selected</h3>)
     let url = this.memeURL();
@@ -379,6 +406,10 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
               <input name="x5" value={this.state.caption.x5} onChange={this.captionChanged} type="number"/>
               <input name="y5" value={this.state.caption.y5} onChange={this.captionChanged} type="number"/>
             </div>
+          </div>
+          <div className='uploader'>
+              <input type="file" onChange={this.fileSelectHandler} id="uploadInput"></input>
+              <button onClick={this.fileUploadHandler}>Upload</button>
           </div>
           <div className='save'>
             <button onClick={this.saveMeme}>Save on the server</button>

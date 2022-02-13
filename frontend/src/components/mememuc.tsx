@@ -286,9 +286,11 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
 				response.blob().then(blob => {
           console.log('in fetch');
           console.log('blob: ', blob);
-          fetch('/upload/url',  {
+          var formData = new FormData();
+          formData.append('ownTemplate', blob!);
+          fetch('/upload',  {
             method: 'POST',
-            body: blob
+            body: formData
           })
           .then(response => response.json())
           .then(result => {
@@ -300,14 +302,14 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
 				});
 		})
 
-    // fetch(`/images`)
-    //   .then(response => response.json())
-    //   .then(memes => {
-    //     this.setState({
-    //       memes: memes
-    //     })
-    //   })
-    //   .catch(error => console.log(error));
+    fetch(`/images`)
+      .then(response => response.json())
+      .then(memes => {
+        this.setState({
+          memes: memes
+        })
+      })
+      .catch(error => console.log(error));
   }
 
   render() {

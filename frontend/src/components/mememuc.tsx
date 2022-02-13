@@ -58,19 +58,23 @@ interface Save {
 }
 
 interface OmmMemeMUCState {
-  selectedBaseImage?: Meme
-  selectedUploadFile: any
-  selectedFetchURL: string
-  memes: Meme[]
-  imgFlipMemes: any[]
-  caption: Caption
-  save: Save
+  selectedBaseImage?: Meme;
+  shouldAppend: Boolean;
+  secondImage?: Meme;
+  selectedUploadFile: any;
+  selectedFetchURL: string;
+  memes: Meme[];
+  imgFlipMemes: any[];
+  caption: Caption;
+  save: Save;
 }
   
 export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
 
   state = {
     selectedBaseImage: undefined,
+    shouldAppend: false,
+    secondImage: undefined,
     selectedUploadFile: null,
     selectedFetchURL: '',
     memes: [],
@@ -124,12 +128,21 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
   }
 
   selectBaseImage = (meme: Meme) => {
-    this.setState({selectedBaseImage: meme})
-    console.log(meme)
-    this.setState({save: {
-      saved: false,
-      name: ''
-    }})
+    if(this.state.selectedBaseImage !== undefined && this.state.shouldAppend){
+      this.setState({secondImage: meme})
+      console.log(meme)
+      this.setState({save: {
+        saved: false,
+        name: ''
+      }})
+    }else{
+      this.setState({selectedBaseImage: meme})
+      console.log(meme)
+      this.setState({save: {
+        saved: false,
+        name: ''
+      }})
+    }
   }
 
   memeURL = () => {
@@ -137,6 +150,11 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
     if(!meme){
       return null
     }
+    // var meme2: Meme = this.state.secondImage!
+    // var url2 = '';
+    // if(!meme2){
+    //   url2 = '' + meme2['link'];
+    // }
     const url = new URL(`${MEME_API_BASE_URL}/images/${meme['name']}`);
     const params: {[index: string]: string} = {
       text: this.state.caption.topText,
@@ -178,6 +196,8 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
       color5: this.state.caption.color5,
       x5: this.state.caption.x5.toString(),
       y5: this.state.caption.y5.toString(),
+
+      // secImg: url2,
     }
     for (let key in params){
       url.searchParams.append(key, params[key])
@@ -346,11 +366,20 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
 				});
 		})
     .then(() =>{
+      if(this.state.selectedBaseImage !== undefined && this.state.shouldAppend){
+        this.setState({secondImage: meme})
+        console.log(meme)
+        this.setState({save: {
+          saved: false,
+          name: ''
+        }})
+      }else{
         this.setState({selectedBaseImage: meme});
         this.setState({save: {
           saved: false,
           name: ''
         }});
+      }
     });
     
     fetch(`/images`)
@@ -361,6 +390,13 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
         })
       })
       .catch(error => console.log(error));    
+  }
+
+  toggleAppending = (e: any) =>{
+    this.setState({
+      shouldAppend: !this.state.shouldAppend
+    });
+    console.log(this.state.shouldAppend);
   }
 
   render() {
@@ -551,8 +587,7 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
               <input type="text" placeholder='enter image url' onChange={this.urlEnterHandler} id="urlFetcher"/>
               <button onClick={this.urlFetchHandler}>Upload from url</button>
               <div>
-                <input type={"checkbox"}/>
-                <label>append a second meme</label>
+                <button onClick={this.toggleAppending}>toogle appending</button>
               </div>
           </div>
           <div className='save'>

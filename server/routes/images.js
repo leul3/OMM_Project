@@ -84,6 +84,8 @@ router.get('/:imageName', function(req, res, next) {
                 const x5 = urlParams.get('x5');
                 const y5 = urlParams.get('y5');
 
+                // const secImg = urlParams.get('secImg');
+
                 const canva = canvas.createCanvas(canvasWidth, canvasHeight);
                 canvas.loadImage(path.join(__dirname, image.link)).then(image => {
                     // creation of the file 'meme.jpeg'
@@ -95,9 +97,16 @@ router.get('/:imageName', function(req, res, next) {
                     img1Width = canvasWidth;
                     img1Height = img1Width /img1Ratio;
 
+                    if(img1Height > canvasHeight){
+                        img1Height = canvasHeight
+                        img1Width = img1Height * img1Ratio
+                    }
+
                     // put the image one the background
                     context.drawImage(image, 0, 0, img1Width, img1Height);
-                    // context.drawImage(image, 0, 0, 100, 100/img1Ratio )
+                    // if(secImg != "")
+                    //     context.drawImage(secImg, 0, 0, 100, 100/img1Ratio )
+
                     // top text
                     context.font = size + "px " + font;
                     if (bold == "true") { context.font = "bold " + context.font}

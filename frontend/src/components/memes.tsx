@@ -120,8 +120,6 @@ export default class Memes extends React.Component<{}, MemesState> {
       })
       .catch(error => console.log(error))
 
-      console.log('bla');
-
       this.setState({comment: ''})
   }
 
@@ -155,7 +153,6 @@ export default class Memes extends React.Component<{}, MemesState> {
       imageResult = (
         <div>
           <img src={url.toString()} alt="selected" title={this.state.selectedBaseImage!['name']}/>
-          
         </div>
       )
       descriptionResult = (

@@ -99,6 +99,7 @@ export default class Memes extends React.Component<{}, MemesState> {
         <div>
           <h3>{this.state.selectedBaseImage!['name']}</h3>
           <img src={url.toString()} alt="selected" title={this.state.selectedBaseImage!['name']}/>
+          <p>User: {this.state.selectedBaseImage!['user']}</p>
         </div>
       )
     }

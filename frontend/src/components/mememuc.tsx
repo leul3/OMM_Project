@@ -1,3 +1,15 @@
+/***************************************************************************************************************************
+ * 
+ * 
+ * This page was taked out the tutorial 8 of the OMM course, and then was improved from it. 
+ * 
+ * link: 
+ * https://github.com/mimuc/omm-ws2122/tree/main/08-react/meme-generator-1-solution
+ * 
+ * 
+****************************************************************************************************************************/
+
+
 import React from 'react';
 import './mememuc.css';
 import { Link } from "react-router-dom";

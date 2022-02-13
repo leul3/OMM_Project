@@ -393,12 +393,12 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
         </div>
         <div>
           <h2>ImgFlip Tempaltes</h2>
-          <ul className="imgflip-meme-list">
+          <ul className="meme-list">
             {
               this.state.imgFlipMemes.map((meme) => {
                 return (
                   <li key={meme['url']}>
-                    <img style={{width: 200}} src={meme['url']} alt="lists"/>
+                    <img src={meme['url']} alt="lists"/>
                   </li>
                 )
               })

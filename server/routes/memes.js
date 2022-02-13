@@ -18,15 +18,15 @@ router.get('/', function(req, res, next) {
 // save a meme
 router.post('/', async function(req, res, next) {
     let memeName = req.body.name;
-    await fs.readFile(path.join(__dirname, '../public/memes/memeUser1.jpeg'), (err, data) => {
+    await fs.readFile('public/memes/memeUser1.jpeg', (err, data) => {
         if (err) throw err;
-        fs.writeFile(path.join(__dirname, `../public/memes/${memeName}.jpeg`), data, async (err) => {
+        fs.writeFile(`public/memes/${memeName}.jpeg`, data, async (err) => {
             if (err) throw err;
             await Meme.insertMany({name: memeName, link: `../public/memes/${memeName}.jpeg`, user: req.body.user});
             res.send(memeName);
         });
     });
-    fs.unlink(path.join(__dirname, '../public/memes/memeUser1.jpeg'), (err) => {
+    fs.unlink('public/memes/memeUser1.jpeg', (err) => {
         if (err) throw err;
     });
 });
@@ -42,8 +42,22 @@ router.get('/:memeName', function(req, res, next) {
             res.send(err);
         }
         else {
-            let meme = result[0];
-            res.sendFile(path.join(__dirname, meme.link));
+            if (result[0] != undefined) {
+                let meme = result[0];
+                res.sendFile(path.join(__dirname, meme.link));
+            }
+            // if the name doesn't exist, the server sends a random meme
+            else {
+                Meme.aggregate([{$sample:{size:1}}], (err, result) => {
+                    if (err){
+                        res.send(err);
+                    }
+                    else {
+                        let meme = result[0];
+                        res.sendFile(path.join(__dirname, meme.link));
+                    }
+                });
+            }
         }
     });
 });
@@ -55,7 +69,7 @@ router.get('/:memeName/delete', function(req, res, next) {
     Meme.remove({name: memeName}, (err) => {
         if (err) throw err;
         else {
-            fs.unlink(path.join(__dirname, `../public/memes/${memeName}.jpeg`), (err) => {
+            fs.unlink(`public/memes/${memeName}.jpeg`, (err) => {
                 if (err) throw err;
             });
             res.send(memeName);

@@ -116,10 +116,10 @@ router.get('/:imageName', function(req, res, next) {
 
                     // save the file 'memeUser1.jpeg'
                     const buffer = canva.toBuffer('image/png');
-                    fs.writeFileSync(path.join(__dirname, '../public/memes/memeUser1.jpeg'), buffer);
+                    fs.writeFileSync('public/memes/memeUser1.jpeg', buffer);
 
                     // send the image
-                    res.sendFile(path.join(__dirname, '../public/memes/memeUser1.jpeg'));
+                    res.sendFile('public/memes/memeUser1.jpeg');
                 });
             }
             else {

@@ -59,7 +59,7 @@ interface Save {
 
 interface OmmMemeMUCState {
   selectedBaseImage?: Meme
-  selectedUploadFile: null
+  selectedUploadFile: any
   memes: Meme[]
   caption: Caption
   save: Save
@@ -247,14 +247,9 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
   fileUploadHandler= async () => {
     var formData = new FormData();
     formData.append('ownTemplate', this.state.selectedUploadFile!);
-    // console.log(formData);
-    console.log(this.state.selectedUploadFile);
-    fetch('/upload', {
+    await fetch('/upload', {
       method: 'POST',
-      body: formData,//this.state.selectedUploadFile,
-      headers: {
-        "Content-type": "multipart/form-data; charset=UTF-8"
-      }
+      body: formData
     })
     .then(response => response.json())
     .then(result => {
@@ -263,6 +258,15 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
     .catch(error => {
       console.error('Error:', error);
     });
+
+    fetch(`/images`)
+      .then(response => response.json())
+      .then(memes => {
+        this.setState({
+          memes: memes
+        })
+      })
+      .catch(error => console.log(error))
   }
 
   render() {

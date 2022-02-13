@@ -1,6 +1,7 @@
 var express = require('express');
 const multer = require('multer');
 const fs = require('fs')
+var Image = require("../models/image.js");
 
 var router = express.Router();
 
@@ -20,7 +21,7 @@ router.post('/', upload.single('ownTemplate'), async function(req, res, next) {
     // let newFileName = req.file.filename + '.' + fileTyp;
     // console.log(newFileName)
     fs.rename(`public/images/${req.file.filename}`, `public/images/${req.file.originalname}`, function() {
-        console.log('callback of upload');
+        Image.insertMany({name: req.file.originalname, link: `../public/images/${req.file.originalname}`});
         res.status(200).json({
             success: 'Success'
         });

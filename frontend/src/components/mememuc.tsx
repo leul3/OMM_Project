@@ -328,7 +328,7 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
     var meme: Meme;
     meme = {
       _id: imgflipMeme['id'],
-      name: 'tmp.jpeg',
+      name: 'tmp',
       link: '../public/images/tmp.jpeg',
     }
     var fetchUrl = `${imgflipMeme['url']}`;
@@ -374,7 +374,7 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
     }
 
     let buttons = (<Link to={"/"}><button>Go back to the main menu</button></Link>)
-    if (this.state.selectedBaseImage != undefined) {
+    if (this.state.selectedBaseImage !== undefined) {
       buttons = (
         <div>
           <button onClick={this.saveMeme}>Save on the server</button>
@@ -550,6 +550,10 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
               <button onClick={this.fileUploadHandler}>Upload selected file</button>
               <input type="text" placeholder='enter image url' onChange={this.urlEnterHandler} id="urlFetcher"/>
               <button onClick={this.urlFetchHandler}>Upload from url</button>
+              <div>
+                <input type={"checkbox"}/>
+                <label>append a second meme</label>
+              </div>
           </div>
           <div className='save'>
             {buttons}

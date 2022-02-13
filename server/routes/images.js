@@ -5,6 +5,17 @@ var fs = require('fs');
 var canvas = require('canvas');
 var Image = require("../models/image.js");
 
+var canvasWidth = 800;
+var canvasHeight= 1000;
+var img1Width   = 0;
+var img1Height  = 0;
+var img1Ratio   = 0;
+var img2Width   = 0;
+var img2Height  = 0;
+var img2Ratio   = 0;
+
+
+
 // ... mounts to /images/
 router.get('/', function(req, res, next) {
     Image.find({}, (err, list) => {
@@ -26,8 +37,10 @@ router.get('/:imageName', function(req, res, next) {
     let imageName = req.params.imageName;
     // get the image metadata from the data storage
     Image.find({ 'name': imageName }, (err, result) => {
-        if (err)
+        if (err){
             res.send(err);
+            console.log("error in image not found");
+        }
         else {
             let image = result[0];
 
@@ -71,48 +84,54 @@ router.get('/:imageName', function(req, res, next) {
                 const x5 = urlParams.get('x5');
                 const y5 = urlParams.get('y5');
 
+                const canva = canvas.createCanvas(canvasWidth, canvasHeight);
                 canvas.loadImage(path.join(__dirname, image.link)).then(image => {
                     // creation of the file 'meme.jpeg'
-                    const canva = canvas.createCanvas(image.width, image.height);
+                    
                     const context = canva.getContext('2d');
+                    // context.fillStyle = 'red';
+                    // context.fillRect(0,0,canvasWidth, canvasHeight);
+                    img1Ratio = image.width / image.height;
+                    img1Width = canvasWidth;
+                    img1Height = img1Width /img1Ratio;
 
                     // put the image one the background
-                    context.drawImage(image, 0, 0, image.width, image.height);
-
+                    context.drawImage(image, 0, 0, img1Width, img1Height);
+                    // context.drawImage(image, 0, 0, 100, 100/img1Ratio )
                     // top text
                     context.font = size + "px " + font;
                     if (bold == "true") { context.font = "bold " + context.font}
                     context.textAlign = 'center';
                     context.fillStyle = color;
-                    context.fillText(text, image.width/2+parseInt(x), 100+parseInt(y));
+                    context.fillText(text, canvasWidth/2+parseInt(x), 100+parseInt(y));
                 
                     // bottom text
                     context.font = size2 + "px " + font2;
                     if (bold2 == "true") { context.font = "bold " + context.font}
                     context.textAlign = 'center';
                     context.fillStyle = color2;
-                    context.fillText(text2, image.width/2+parseInt(x2), image.height-50+parseInt(y2));
+                    context.fillText(text2, canvasWidth/2+parseInt(x2), canvasHeight-50+parseInt(y2));
 
                     // text 3
                     context.font = size3 + "px " + font3;
                     if (bold3 == "true") { context.font = "bold " + context.font}
                     context.textAlign = 'center';
                     context.fillStyle = color3;
-                    context.fillText(text3, image.width/2+parseInt(x3), 100+parseInt(y3));
+                    context.fillText(text3, canvasWidth/2+parseInt(x3), 100+parseInt(y3));
 
                     // text 4
                     context.font = size4 + "px " + font4;
                     if (bold4 == "true") { context.font = "bold " + context.font}
                     context.textAlign = 'center';
                     context.fillStyle = color4;
-                    context.fillText(text4, image.width/2+parseInt(x4), 100+parseInt(y4));
+                    context.fillText(text4, canvasWidth/2+parseInt(x4), 100+parseInt(y4));
 
                     // text 5
                     context.font = size5 + "px " + font5;
                     if (bold5 == "true") { context.font = "bold " + context.font}
                     context.textAlign = 'center';
                     context.fillStyle = color5;
-                    context.fillText(text5, image.width/2+parseInt(x5), 100+parseInt(y5));
+                    context.fillText(text5, canvasWidth/2+parseInt(x5), 100+parseInt(y5));
 
                     // save the file 'memeUser1.jpeg'
                     const buffer = canva.toBuffer('image/png');

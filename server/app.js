@@ -7,7 +7,6 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var cors = require('cors');
 
-const { upload } = require('./routes/upload')
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var imagesRouter = require('./routes/images');

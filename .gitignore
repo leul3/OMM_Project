@@ -3,3 +3,5 @@ frontend/node_modules/*
 node_modules/
 server/package-lock.json
 frontend/package-lock.json
+server/public/memes/memeUser1.jpeg
+server/public/images/tmp.jpeg

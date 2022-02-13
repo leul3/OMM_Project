@@ -28,9 +28,15 @@ router.post('/', upload.single('ownTemplate'), async function(req, res, next) {
     });
 });
 
-router.post('/url', async function (req, res, next) {
-    console.log('receiving a url upload')
-    console.log(req.body)
-})
+router.post('/imgflip', upload.single('ownTemplate'), async function (req, res, next) {
+    console.log('req.file', req.file);
+    let newFileName = 'tmp.jpeg'
+    fs.rename(`public/images/${req.file.filename}`, `public/images/${newFileName}`, function() {
+        // Image.insertMany({name: newFileName, link: `../public/images/${newFileName}`});
+        res.status(200).json({
+            success: 'Success'
+        });
+    });
+});
 
 module.exports = router;

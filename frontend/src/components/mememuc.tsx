@@ -125,6 +125,7 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
 
   selectBaseImage = (meme: Meme) => {
     this.setState({selectedBaseImage: meme})
+    console.log(meme)
     this.setState({save: {
       saved: false,
       name: ''
@@ -323,14 +324,43 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
       .catch(error => console.log(error));
   }
 
-  fetchFromImgFlip = async () =>{
-    console.log(this.state.memes);
-    fetch('https://api.imgflip.com/get_memes',{
-      method: 'GET'
-    })
-    .then(response => response.json().then(body => {
-        console.log(body.data.memes)
-    }))
+  selectImgFlipAsBaseImage = (imgflipMeme: never) => {
+    var meme: Meme;
+    meme = {
+      _id: imgflipMeme['id'],
+      name: 'tmp.jpeg',
+      link: '../public/images/tmp.jpeg',
+    }
+    var fetchUrl = `${imgflipMeme['url']}`;
+    console.log("imgflip url: ", fetchUrl);
+    fetch(fetchUrl)
+			.then(response => {
+				response.blob().then(blob => {
+          var formData = new FormData();
+          console.log('form data: ', formData)
+          formData.append('ownTemplate', blob!);
+          fetch('/upload/imgflip',  {
+            method: 'POST',
+            body: formData
+          });
+				});
+		})
+    .then(() =>{
+        this.setState({selectedBaseImage: meme});
+        this.setState({save: {
+          saved: false,
+          name: ''
+        }});
+    });
+    
+    fetch(`/images`)
+      .then(response => response.json())
+      .then(memes => {
+        this.setState({
+          memes: memes
+        })
+      })
+      .catch(error => console.log(error));    
   }
 
   render() {
@@ -397,7 +427,7 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
             {
               this.state.imgFlipMemes.map((meme) => {
                 return (
-                  <li key={meme['url']}>
+                  <li key={meme['url']} onClick={() => {this.selectImgFlipAsBaseImage(meme)}}>
                     <img src={meme['url']} alt="lists"/>
                   </li>
                 )
@@ -520,7 +550,6 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
               <button onClick={this.fileUploadHandler}>Upload selected file</button>
               <input type="text" placeholder='enter image url' onChange={this.urlEnterHandler} id="urlFetcher"/>
               <button onClick={this.urlFetchHandler}>Upload from url</button>
-              <button onClick={this.fetchFromImgFlip}>Get templates from imgflip</button>
           </div>
           <div className='save'>
             {buttons}

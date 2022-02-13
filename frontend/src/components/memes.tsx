@@ -14,6 +14,7 @@ interface Meme {
 
 interface MemesState {
   selectedBaseImage?: Meme
+  selectedBaseImageId?: number
   memes: Meme[]
 }
   
@@ -21,6 +22,7 @@ export default class Memes extends React.Component<{}, MemesState> {
 
   state = {
     selectedBaseImage: undefined,
+    selectedBaseImageId: undefined,
     memes: []
   }
 
@@ -36,8 +38,9 @@ export default class Memes extends React.Component<{}, MemesState> {
       .catch(error => console.log(error))
   }
 
-  selectBaseImage = (meme: Meme) => {
+  selectBaseImage = (meme: Meme, id: number) => {
     this.setState({selectedBaseImage: meme})
+    this.setState({selectedBaseImageId: id})
   }
 
   memeURL = () => {
@@ -63,6 +66,31 @@ export default class Memes extends React.Component<{}, MemesState> {
 		});
   }
 
+  navigate = (movement: string) => {
+    var memeId: number = 0;
+    if (movement == 'next') {
+      if (this.state.selectedBaseImageId! < this.state.memes.length-1){
+        memeId = this.state.selectedBaseImageId! + 1;
+      }
+      else {
+        memeId = 0;
+      }
+    }
+    else if (movement == 'previous') {
+      if (this.state.selectedBaseImageId! > 0){
+        memeId = this.state.selectedBaseImageId! - 1;
+      }
+      else {
+        memeId = this.state.memes.length-1;
+      }
+    }
+    else if (movement == 'random') {
+      memeId = Math.floor(Math.random() * this.state.memes.length);
+    }
+
+    this.selectBaseImage(this.state.memes[memeId], memeId);
+  }
+
   render() {
     let results = (<h3>No Meme Selected</h3>)
     let url = this.memeURL();
@@ -85,16 +113,17 @@ export default class Memes extends React.Component<{}, MemesState> {
       )
     }
 
+    var i:number = 0;
     return (<div className="mememuc">
       <ul className="meme-list">
         {
           this.state.memes.map((meme) => {
-
             return (
-              <li key={`${MEME_API_BASE_URL}/memes/${meme['name']}`} onClick={() => {this.selectBaseImage(meme)}}>
+              <li key={`${MEME_API_BASE_URL}/memes/${meme['name']}`} onClick={() => {this.selectBaseImage(meme, i)}}>
                 <img src={`${MEME_API_BASE_URL}/memes/${meme['name']}`} alt="lists"/>
               </li>
             )
+            i++;
           })
         }
       </ul>
@@ -102,7 +131,12 @@ export default class Memes extends React.Component<{}, MemesState> {
         {results}
       </div>
       <div className="params">
-          {buttons}
+        {buttons}
+        <div className="navigation">
+          <button onClick={() => {this.navigate('next')}}>Next</button>
+          <button onClick={() => {this.navigate('previous')}}>Previous</button>
+          <button onClick={() => {this.navigate('random')}}>Random</button>
+        </div>
       </div>
     </div>);
   }

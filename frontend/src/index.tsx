@@ -9,6 +9,7 @@ import './index.css';
 import App from './App';
 import OmmMememuc from './components/mememuc'
 import Memes from "./components/memes";
+import Login from './components/login';
 
 ReactDOM.render(
     <BrowserRouter>
@@ -17,7 +18,9 @@ ReactDOM.render(
                 <h1>MemeMUC</h1>
             </header>
             <Routes>
-                <Route path="/" element={<App />} />
+                {/* Add login route on app start */}
+                <Route path="/" element={<Login />} />
+                <Route path="/home" element={<App />} />
                 <Route path="mememuc" element={<OmmMememuc />} />
                 <Route path="memes" element={<Memes />} />
             </Routes>

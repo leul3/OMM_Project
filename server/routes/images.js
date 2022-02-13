@@ -119,7 +119,7 @@ router.get('/:imageName', function(req, res, next) {
                     fs.writeFileSync('public/memes/memeUser1.jpeg', buffer);
 
                     // send the image
-                    res.sendFile('public/memes/memeUser1.jpeg');
+                    res.sendFile(path.join(__dirname, '../public/memes/memeUser1.jpeg'));
                 });
             }
             else {

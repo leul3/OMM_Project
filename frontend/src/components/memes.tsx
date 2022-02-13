@@ -16,6 +16,7 @@ interface MemesState {
   selectedBaseImage?: Meme
   selectedBaseImageId?: number
   memes: Meme[]
+  comment: string
 }
   
 export default class Memes extends React.Component<{}, MemesState> {
@@ -23,7 +24,8 @@ export default class Memes extends React.Component<{}, MemesState> {
   state = {
     selectedBaseImage: undefined,
     selectedBaseImageId: undefined,
-    memes: []
+    memes: [],
+    comment: ''
   }
 
   // initialize this.state.memes
@@ -91,51 +93,137 @@ export default class Memes extends React.Component<{}, MemesState> {
     this.selectBaseImage(this.state.memes[memeId], memeId);
   }
 
+  captionChanged = (e: any) => {
+    this.setState({
+      ...this.state,
+      comment: e.target.value
+    })
+  }
+
+  submitComment = async () => {
+    await fetch(`/memes/${this.state.selectedBaseImage!['name']}/comment`, {
+      method: 'post',
+      body: JSON.stringify({
+        user: 'User1',
+        comment: this.state.comment
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8"
+      }
+    })
+    await fetch(`/memes`)
+      .then(response => response.json())
+      .then(memes => {
+        this.setState({
+          memes: memes
+        })
+      })
+      .catch(error => console.log(error))
+
+      this.setState({comment: ''})
+  }
+
+  submitVote = async (vote: boolean) => {
+    await fetch(`/memes/${this.state.selectedBaseImage!['name']}/vote`, {
+      method: 'post',
+      body: JSON.stringify({
+        vote: vote
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8"
+      }
+    })
+    await fetch(`/memes`)
+      .then(response => response.json())
+      .then(memes => {
+        this.setState({
+          memes: memes
+        })
+      })
+      .catch(error => console.log(error))
+
+      this.setState({selectedBaseImage: this.state.memes[this.state.selectedBaseImageId!]})
+  }
+
   render() {
-    let results = (<h3>No Meme Selected</h3>)
+    let imageResult = (<h3>No Meme Selected</h3>)
+    let descriptionResult = (<p></p>)
     let url = this.memeURL();
     if (url) {
-      results = (
+      imageResult = (
         <div>
-          <h3>{this.state.selectedBaseImage!['name']}</h3>
           <img src={url.toString()} alt="selected" title={this.state.selectedBaseImage!['name']}/>
+        </div>
+      )
+      descriptionResult = (
+        <div>
+          <h2>{this.state.selectedBaseImage!['name']}</h2>
+          <h3>User:</h3>
+          <p>{this.state.selectedBaseImage!['user']}</p>
+          <h3>Score:</h3>
+          <p>{this.state.selectedBaseImage!['score']}</p>
+          <h3>Comments:</h3>
+          {(this.state.selectedBaseImage!['comments'] as []).map((comment) => {
+            return(
+              <div>
+                <h5>{comment['date']} - {comment['user']}</h5>
+                <p>{comment['comment']}</p>
+              </div>
+            )
+          })}
         </div>
       )
     }
 
     let buttons = (<Link to={"/"}><button>Go back to the main menu</button></Link>)
+    let vote = (<p></p>)
     if (this.state.selectedBaseImage != undefined) {
       buttons = (
         <div>
-          <button onClick={this.storeMemeLocally}>Store locally</button>
           <Link to={"/"}><button>Go back to the main menu</button></Link>
+          <button onClick={this.storeMemeLocally}>Store the meme locally</button>
+          <input name="comment" value={this.state.comment} onChange={this.captionChanged} type="text" placeholder="comment me"/>
+          <button onClick={this.submitComment}>Submit comment</button>
         </div>
+      )
+
+      vote = (
+        <>
+          <button onClick={() => {this.submitVote(false)}}>Vote -1</button>
+          <button onClick={() => {this.submitVote(true)}}>Vote +1</button>
+        </>
       )
     }
 
-    var i:number = 0;
+    var i:number = -1;
     return (<div className="mememuc">
       <ul className="meme-list">
         {
           this.state.memes.map((meme) => {
+            i++;
             return (
               <li key={`${MEME_API_BASE_URL}/memes/${meme['name']}`} onClick={() => {this.selectBaseImage(meme, i)}}>
                 <img src={`${MEME_API_BASE_URL}/memes/${meme['name']}`} alt="lists"/>
               </li>
             )
-            i++;
           })
         }
       </ul>
       <div className="results">
-        {results}
+        {imageResult}
       </div>
       <div className="params">
         {buttons}
+        <div className="vote">
+          {vote}
+        </div>
         <div className="navigation">
-          <button onClick={() => {this.navigate('next')}}>Next</button>
           <button onClick={() => {this.navigate('previous')}}>Previous</button>
           <button onClick={() => {this.navigate('random')}}>Random</button>
+          <button onClick={() => {this.navigate('next')}}>Next</button>
+        </div>
+        <div className="description">
+          {descriptionResult}
         </div>
       </div>
     </div>);

@@ -22,7 +22,7 @@ router.post('/', async function(req, res, next) {
         if (err) throw err;
         fs.writeFile(`public/memes/${memeName}.jpeg`, data, async (err) => {
             if (err) throw err;
-            await Meme.insertMany({name: memeName, link: `../public/memes/${memeName}.jpeg`, user: req.body.user});
+            await Meme.insertMany({name: memeName, link: `../public/memes/${memeName}.jpeg`, user: req.body.user, comments: []});
             res.send(memeName);
         });
     });
@@ -60,6 +60,62 @@ router.get('/:memeName', function(req, res, next) {
             }
         }
     });
+});
+
+  
+// post method to add comments
+router.post('/:memeName/comment', function(req, res, next) {
+    // get the value of the here so called :memeName placeholder
+    let memeName = req.params.memeName;
+
+    let userComment = req.body.user;
+    let comment = req.body.comment; 
+
+    let current = new Date();
+    let cDate = current.getFullYear() + '-' + (current.getMonth() + 1) + '-' + current.getDate();
+    let cTime = current.getHours() + ":" + current.getMinutes() + ":" + current.getSeconds();
+    let dateComment = cDate + ' ' + cTime;
+
+    Meme.updateOne(
+        {name: memeName},
+        {$push: { comments: {
+            user: userComment,
+            date: dateComment,
+            comment: comment
+        } }}, (err, result) => {
+            if (err){
+                res.send(err);
+            }
+        }
+    )
+});
+
+  
+// post method to add comments
+router.post('/:memeName/vote', function(req, res, next) {
+    // get the value of the here so called :memeName placeholder
+    let memeName = req.params.memeName;
+    let vote = req.body.vote;
+    if (vote) {
+        Meme.updateOne(
+            {name: memeName},
+            {$inc: { score: 1 }}, (err, result) => {
+                if (err){
+                    res.send(err);
+                }
+            }
+        )
+    }
+    else {
+        Meme.updateOne(
+            {name: memeName},
+            {$inc: { score: -1 }}, (err, result) => {
+                if (err){
+                    res.send(err);
+                }
+            }
+        )
+    }
 });
 
   

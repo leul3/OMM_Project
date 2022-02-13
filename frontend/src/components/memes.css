@@ -49,6 +49,39 @@
     margin: 5px;
 }
 
+.params .vote {
+    width: 50%;
+    display: flex;
+    margin-left: 20%;
+}
+
+.params input {
+    background-color: white;
+    color: black;
+    text-align: center;
+    text-decoration: none;
+    display: bottom;
+    width: 95%;
+    height: 50px;
+    margin: 5px;
+    font-size: large;
+}
+
 .params .navigation {
-    margin-top: 70%;
+    width: 33%;
+    display: flex;
+    margin-left: 5px;
+}
+
+.params .description {
+    background-color: white;
+    color: black;
+    text-align: center;
+    text-decoration: none;
+    display: bottom;
+    width: 95%;
+    height: 58%;
+    overflow-y: scroll;
+    margin: 5px;
+    font-size: large;
 }

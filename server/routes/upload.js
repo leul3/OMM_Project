@@ -28,4 +28,9 @@ router.post('/', upload.single('ownTemplate'), async function(req, res, next) {
     });
 });
 
+router.post('/url', async function (req, res, next) {
+    console.log('receiving a url upload')
+    console.log(req.body)
+})
+
 module.exports = router;

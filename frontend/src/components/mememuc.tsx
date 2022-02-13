@@ -60,6 +60,7 @@ interface Save {
 interface OmmMemeMUCState {
   selectedBaseImage?: Meme
   selectedUploadFile: any
+  selectedFetchURL: string
   memes: Meme[]
   caption: Caption
   save: Save
@@ -70,6 +71,7 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
   state = {
     selectedBaseImage: undefined,
     selectedUploadFile: null,
+    selectedFetchURL: '',
     memes: [],
     caption: {
       topText: '', topBold: '', topSize: 100, topFont: 'Menlo', topColor: '%23000000', topX: 0, topY: 0,
@@ -241,8 +243,7 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
       this.setState({
         selectedUploadFile: e.target.files[0]
       });
-      console.log(e.target.files[0]);
-      console.log(this.state.selectedUploadFile);
+      console.log(e.target.files[0])
   }
   fileUploadHandler= async () => {
     var formData = new FormData();
@@ -267,6 +268,46 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
         })
       })
       .catch(error => console.log(error))
+  }
+
+  urlEnterHandler = (e: any) =>{
+    this.setState({
+      selectedFetchURL: e.target.value
+      // url to image for test purposes: https://th.bing.com/th/id/OIP.7QgYr4GJuLIcoEUWWSkaNwHaE8?pid=ImgDet&rs=1
+    })
+  }
+
+  urlFetchHandler = async () =>{
+    var fetchUrl = `${this.state.selectedFetchURL}`;
+    console.log('fetched url: ',fetchUrl);
+    fetch(fetchUrl)
+			.then(response => {
+        console.log('response: ',response);
+				response.blob().then(blob => {
+          console.log('in fetch');
+          console.log('blob: ', blob);
+          fetch('/upload/url',  {
+            method: 'POST',
+            body: blob
+          })
+          .then(response => response.json())
+          .then(result => {
+            console.log('Success:', result);
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+				});
+		})
+
+    // fetch(`/images`)
+    //   .then(response => response.json())
+    //   .then(memes => {
+    //     this.setState({
+    //       memes: memes
+    //     })
+    //   })
+    //   .catch(error => console.log(error));
   }
 
   render() {
@@ -435,8 +476,10 @@ export default class OmmMemeMUC extends React.Component<{}, OmmMemeMUCState> {
             </div>
           </div>
           <div className='uploader'>
-              <input type="file" onChange={this.fileSelectHandler} id="uploadInput"></input>
-              <button onClick={this.fileUploadHandler}>Upload</button>
+              <input type="file" onChange={this.fileSelectHandler} id="uploadInput"/>
+              <button onClick={this.fileUploadHandler}>Upload selected file</button>
+              <input type="text" placeholder='enter image url' onChange={this.urlEnterHandler} id="urlFetcher"/>
+              <button onClick={this.urlFetchHandler}>Upload from url</button>
           </div>
           <div className='save'>
             {buttons}
